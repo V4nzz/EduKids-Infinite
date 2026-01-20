@@ -18,18 +18,41 @@ export function generateQuestion({
     subject,
     subjectLabel: SUBJECT_LABEL[subject],
     difficulty,
-    difficultyLabel: difficulty <= 3 ? "Pemula" : difficulty <= 7 ? "Penjelajah" : "Pemikir",
+    difficultyLabel:
+      difficulty <= 3 ? "Pemula" : difficulty <= 7 ? "Penjelajah" : "Pemikir",
   };
 
+  // ✅ MATH = MCQ (tetap seperti sekarang)
   if (subject === "math") {
     const q = makeMathQuestion({ difficulty, rng });
-    return { ...base, ...q };
+    return {
+      ...base,
+      type: "mcq",
+      ...q, // harus mengandung: prompt, choices, correctChoiceId, hint?
+    };
   }
+
+  // ✅ BAHASA = Drag & Drop (susun kata)
   if (subject === "bahasa") {
     const q = makeBahasaQuestion({ difficulty, rng });
-    return { ...base, ...q };
+
+    // makeBahasaQuestion HARUS mengembalikan:
+    // { prompt, hint?, bank: string[], answer: string[] }
+    return {
+      ...base,
+      type: "drag_order",
+      ...q,
+    };
   }
-  // ipa
+
+  // ✅ IPA = Drag & Drop (urutkan langkah)
   const q = makeIpaQuestion({ difficulty, rng });
-  return { ...base, ...q };
+
+  // makeIpaQuestion HARUS mengembalikan:
+  // { prompt, hint?, bank: string[], answer: string[] }
+  return {
+    ...base,
+    type: "drag_order",
+    ...q,
+  };
 }

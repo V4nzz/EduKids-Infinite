@@ -518,3 +518,53 @@ body{
   );
   transition: width .18s ease;
 }
+
+.dropRow{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 900px){
+  .dropRow{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.dropSlot{
+  min-height: 64px;
+  border: 2px dashed rgba(0,0,0,0.18);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.70);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 10px;
+}
+
+.dropSlot.filled{
+  border-style: solid;
+  border-color: rgba(55,201,123,0.35);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.05);
+}
+
+.chipWrap{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip{
+  user-select:none;
+  cursor: grab;
+  border: 2px solid rgba(0,0,0,0.10);
+  border-bottom-width: 5px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 800;
+}
+
+.chip:active{ cursor: grabbing; transform: translateY(1px); }
+
+.chipBig{
+  padding: 12px 16px;
+  font-size: 14px;
+}

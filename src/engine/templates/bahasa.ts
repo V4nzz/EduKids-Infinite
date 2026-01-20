@@ -1,14 +1,6 @@
-import { pickOne, randInt } from "../rng";
+import { pickOne } from "../rng";
 
 type MakeParams = { difficulty: number; rng: () => number };
-
-const vocab = [
-  { emoji: "🍎", word: "apel", distractors: ["pisang", "jeruk", "anggur"] },
-  { emoji: "🐱", word: "kucing", distractors: ["anjing", "ayam", "ikan"] },
-  { emoji: "🏫", word: "sekolah", distractors: ["pasar", "rumah", "kantor"] },
-  { emoji: "🚲", word: "sepeda", distractors: ["mobil", "kereta", "perahu"] },
-  { emoji: "🌧️", word: "hujan", distractors: ["panas", "angin", "salju"] },
-];
 
 function shuffle<T>(rng: () => number, arr: T[]) {
   const a = [...arr];
@@ -19,30 +11,53 @@ function shuffle<T>(rng: () => number, arr: T[]) {
   return a;
 }
 
+// Bank kalimat sederhana (kelas 1–6) dengan variasi panjang berdasar difficulty
+const sentencesEasy = [
+  ["Aku", "suka", "apel"],
+  ["Ibu", "pergi", "ke", "pasar"],
+  ["Adik", "minum", "air"],
+  ["Kami", "belajar", "di", "sekolah"],
+  ["Kucing", "lari", "cepat"],
+];
+
+const sentencesMedium = [
+  ["Aku", "makan", "nasi", "di", "rumah"],
+  ["Ayah", "naik", "sepeda", "ke", "toko"],
+  ["Kami", "bermain", "bola", "di", "lapangan"],
+  ["Bunga", "itu", "wangi", "sekali"],
+  ["Hari", "ini", "cuaca", "cerah"],
+];
+
+const sentencesHard = [
+  ["Setelah", "hujan", "reda,", "pelangi", "muncul", "di", "langit"],
+  ["Sebelum", "tidur,", "aku", "membaca", "buku", "cerita"],
+  ["Di", "sekolah,", "kami", "belajar", "dengan", "gembira"],
+  ["Jika", "rajin", "berlatih,", "kamu", "akan", "semakin", "pintar"],
+];
+
 export function makeBahasaQuestion({ difficulty, rng }: MakeParams) {
-  const item = pickOne(rng, vocab);
+  const pool =
+    difficulty <= 3 ? sentencesEasy : difficulty <= 7 ? sentencesMedium : sentencesHard;
 
-  // difficulty nanti bisa bikin kalimat rumpang; untuk sekarang variasikan prompt.
-  const prompts = [
-    `Kata yang cocok untuk ${item.emoji} adalah…`,
-    `Pilih nama yang benar: ${item.emoji}`,
-    `Ini gambar apa? ${item.emoji}`,
-  ];
+  const answer = pickOne(rng, pool);
 
-  const prompt = pickOne(rng, prompts);
+  // bank = urutan acak
+  const bank = shuffle(rng, answer);
 
-  // 4 pilihan
-  const options = shuffle(rng, [item.word, ...shuffle(rng, item.distractors).slice(0, 3)]);
-  const correctIndex = options.indexOf(item.word);
+  const prompt =
+    difficulty <= 3
+      ? "Susun kata menjadi kalimat yang benar:"
+      : difficulty <= 7
+      ? "Tarik kata ke urutan yang tepat untuk membentuk kalimat:"
+      : "Susun kalimat dengan urutan yang benar (perhatikan tanda baca):";
 
-  // hint makin jelas untuk level kecil
   const hint =
-    difficulty <= 3 ? "Coba sebutkan dulu di kepala kamu, lalu pilih." : "Perhatikan emoji/gambar ya.";
+    "Seret kata dari bawah ke kotak urutan. Kamu bisa geser lagi kalau salah urutan.";
 
   return {
     prompt,
     hint,
-    choices: options.map((w, idx) => ({ id: String(idx), label: w })),
-    correctChoiceId: String(correctIndex),
+    bank,
+    answer,
   };
 }
