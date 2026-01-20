@@ -1,66 +1,108 @@
 import Link from "next/link";
 
 const worlds = [
-  { title: "Hutan Ceria", desc: "Latihan cepat dengan soal acak dan reward kecil.", href: "/play", emoji: "🌳", tone: "btnPrimary" },
-  { title: "Misi Harian", desc: "Target 7 benar/hari. Besok ganti otomatis.", href: "/daily", emoji: "🗓️", tone: "btnGood" },
-  { title: "Pojok Orang Tua", desc: "Lihat progres di perangkat ini.", href: "/parent", emoji: "👪", tone: "" },
+  {
+    title: "Hutan Ceria",
+    desc: "Latihan cepat dengan soal acak dan reward kecil.",
+    href: "/play",
+    emoji: "🌳",
+    tag: "Free Play",
+    cls: "worldMath",
+    btn: "btnPrimary",
+  },
+  {
+    title: "Misi Harian",
+    desc: "Target 7 bintang/hari. Besok ganti otomatis.",
+    href: "/daily",
+    emoji: "🗓️",
+    tag: "Daily",
+    cls: "worldDaily",
+    btn: "btnGood",
+  },
+  {
+    title: "Pojok Orang Tua",
+    desc: "Lihat progres belajar di perangkat ini.",
+    href: "/parent",
+    emoji: "👪",
+    tag: "Info",
+    cls: "worldParent",
+    btn: "",
+  },
 ];
 
 export default function HomePage() {
   return (
-    <>
-      {/* BACKGROUND GAME */}
-      <div className="bgKids" aria-hidden="true">
-        <div className="stars" />
-        <div className="blob b1" />
-        <div className="blob b2" />
-        <div className="blob b3" />
-      </div>
+    <div className="container">
+      <div className="card kidScene">
+        {/* dekor */}
+        <div className="cloud" style={{ left: 20 }} />
+        <div className="cloud" style={{ left: 220, top: 44, opacity: 0.8, animationDuration: "18s" }} />
+        <div className="balloon" />
 
-      {/* KONTEN */}
-      <div className="container">
-        <div className="card" style={{ overflow: "hidden", position: "relative" }}>
-          <div style={{ display: "flex", gap: 14, alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <h1 style={{ margin: 0, fontSize: 34 }}>EduKids Infinite</h1>
-              <p className="muted" style={{ marginTop: 8, lineHeight: 1.55 }}>
-                Petualangan belajar tanpa tamat ✨ — main sebentar tapi balik lagi besok.
-              </p>
+        {/* header */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div>
+            <div className="kidTitle">EduKids Infinite</div>
+            <div className="kidSub muted" style={{ marginTop: 10 }}>
+              Petualangan belajar tanpa tamat ✨ — main sebentar tapi balik lagi besok.
             </div>
-            <div className="badge">💾 Tanpa akun • LocalStorage</div>
           </div>
+          <div className="badge">💾 Tanpa akun • LocalStorage</div>
+        </div>
 
-          {/* Mascot card (poin 4) */}
-          <div className="card" style={{ marginTop: 14, background: "rgba(0,0,0,0.10)" }}>
-            <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 18 }}>🧸 Halo! Aku Kiko.</div>
-                <div className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>
-                  Pilih dunia belajar dulu ya—habis itu kita kumpulin bintang ⭐
+        <div className="hr" />
+
+        {/* mascot bubble */}
+        <div className="card" style={{ background: "rgba(255,255,255,0.72)" }}>
+          <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>🧸 Halo! Aku Kiko.</div>
+              <div className="muted" style={{ marginTop: 6, lineHeight: 1.5 }}>
+                Pilih dunia belajar dulu ya—habis itu kita kumpulin bintang ⭐
+              </div>
+            </div>
+            <div className="badge">⭐ Target: 7 bintang/hari</div>
+          </div>
+        </div>
+
+        <div className="hr" />
+
+        {/* worlds */}
+        <div className="worldGrid">
+          {worlds.map((w) => (
+            <div key={w.title} className={`worldCute ${w.cls}`}>
+              <div className="shine" />
+              <div className="tag">{w.tag}</div>
+
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div className="icon">{w.emoji}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 900, fontSize: 18 }}>{w.title}</div>
+                  <div className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>
+                    {w.desc}
+                  </div>
                 </div>
               </div>
-              <div className="badge">⭐ Target: 7 bintang/hari</div>
-            </div>
-          </div>
 
-          <div className="hr" />
-
-          <div className="gridWorld">
-            {worlds.map((w) => (
-              <div key={w.title} className="worldCard">
-                <div className="worldEmoji">{w.emoji}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 18 }}>{w.title}</div>
-                  <div className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>{w.desc}</div>
-                </div>
-                <Link className={`btn ${w.tone}`} href={w.href}>
+              <div style={{ marginTop: 14, display: "flex", justifyContent: "flex-end" }}>
+                <Link className={`btn ${w.btn}`} href={w.href}>
                   Masuk ➜
                 </Link>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hr" />
+
+        {/* footer badges */}
+        <div className="row">
+          <span className="badge">🎮 Fun UI</span>
+          <span className="badge">🧠 Adaptive</span>
+          <span className="badge">🔁 Soal beda</span>
+          <span className="badge">🎁 Reward</span>
         </div>
       </div>
-    </>
+    </div>
   );
 }
