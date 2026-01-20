@@ -47,7 +47,6 @@ export default function HomePage() {
               Petualangan belajar tanpa tamat ✨ — main sebentar tapi balik lagi besok.
             </div>
           </div>
-          <div className="badge">💾 Tanpa akun • LocalStorage</div>
         </div>
 
         <div className="hr" />
