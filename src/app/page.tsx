@@ -94,12 +94,16 @@ export default function HomePage() {
 
         <div className="hr" />
 
-        {/* footer badges */}
-        <div className="row">
-          <span className="badge">🎮 Fun UI</span>
-          <span className="badge">🧠 Adaptive</span>
-          <span className="badge">🔁 Soal beda</span>
-          <span className="badge">🎁 Reward</span>
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+          {/* kiri: Karakter */}
+          <Link className="btn btnPrimary" href="/avatar">
+            🎭 Karakter
+          </Link>
+
+          {/* kanan: Koleksi Stiker (posisi tombol Karakter lama) */}
+          <Link className="btn btnGood" href="/stickers">
+            🎁 Koleksi Stiker
+          </Link>
         </div>
       </div>
     </div>

@@ -422,3 +422,99 @@ body{
 .worldMath .shine{ background: rgba(77,150,255,0.22); }
 .worldDaily .shine{ background: rgba(55,201,123,0.22); }
 .worldParent .shine{ background: rgba(142,124,255,0.22); }
+
+.kidInput{
+  border: 2px solid rgba(0,0,0,0.10);
+  border-bottom-width: 5px;
+  border-radius: 16px;
+  padding: 12px 14px;
+  outline: none;
+  background: rgba(255,255,255,0.92);
+  min-width: 220px;
+}
+.kidInput:focus{
+  border-color: rgba(77,150,255,0.40);
+}
+
+.avatarGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 900px){
+  .avatarGrid{ grid-template-columns: 1fr; }
+}
+
+.avatarCard{
+  text-align:left;
+  border: 2px solid rgba(0,0,0,0.10);
+  border-bottom-width: 6px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.80);
+  padding: 14px;
+  cursor: pointer;
+  transition: transform .10s ease, filter .12s ease;
+}
+.avatarCard:hover{ transform: translateY(-3px); filter: brightness(1.02); }
+.avatarCard:active{ transform: translateY(2px); border-bottom-width: 3px; }
+
+.avatarActive{
+  border-color: rgba(55,201,123,0.35);
+  background: rgba(55,201,123,0.10);
+}
+
+.avatarEmoji{
+  width: 56px; height: 56px;
+  display:grid; place-items:center;
+  border-radius: 18px;
+  border: 2px solid rgba(0,0,0,0.08);
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.stickerGrid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 900px){ .stickerGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.stickerCard{
+  border: 2px solid rgba(0,0,0,0.10);
+  border-bottom-width: 6px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.78);
+  padding: 14px;
+  text-align: center;
+  box-shadow: 0 10px 0 rgba(0,0,0,0.06);
+}
+
+.stickerProg{
+  border: 2px solid rgba(0,0,0,0.08);
+  border-bottom-width: 6px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.78);
+  padding: 14px;
+  box-shadow: 0 10px 0 rgba(0,0,0,0.05);
+  margin-bottom: 14px;
+}
+
+.stickerBar{
+  margin-top: 10px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.06);
+  border: 2px solid rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.stickerFill{
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    rgba(255,122,69,0.55),
+    rgba(77,150,255,0.55),
+    rgba(55,201,123,0.55)
+  );
+  transition: width .18s ease;
+}

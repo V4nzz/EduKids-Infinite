@@ -11,6 +11,9 @@ import { evaluateAnswer } from "@/engine/evaluate";
 import { nextDifficulty } from "@/engine/difficulty";
 import { useProgress } from "@/hooks/useProgress";
 import type { Subject } from "@/engine/types";
+import { useStickers } from "@/hooks/useStickers";
+import StickerRewardModal from "@/components/StickerRewardModal";
+import StickerProgress from "@/components/StickerProgress";
 
 const subjectOptions: { id: Subject; label: string; emoji: string }[] = [
   { id: "math", label: "Matematika", emoji: "🧮" },
@@ -30,6 +33,9 @@ export default function PlayPage() {
   const [question, setQuestion] = useState(() =>
     generateQuestion({ subject, difficulty, rng })
   );
+
+  const { onCorrectAnswer, progressToNext, every } = useStickers();
+  const [rewardSticker, setRewardSticker] = useState<null | any>(null);
 
   function syncDifficultyFor(s: Subject) {
     const d = progress.skill[s] || 1;
@@ -55,9 +61,12 @@ export default function PlayPage() {
     if (result.correct) {
       bumpCoins(1);
       setToast({ kind: "good", text: result.feedback });
-    } else {
-      setToast({ kind: "bad", text: result.feedback });
-    }
+    
+      // 🎁 STIKER REWARD (tiap 5 benar)
+      const reward = onCorrectAnswer({ every: 5 });
+      console.log("reward:", reward);
+      if (reward) setRewardSticker(reward);
+    }    
   }
 
   return (
@@ -93,13 +102,28 @@ export default function PlayPage() {
         </p>
       </div>
 
+      <StickerProgress value={progressToNext} total={every} />
       <QuestionCard
         question={question}
         onAnswer={onAnswer}
         onNext={() => nextQ(difficulty)}
       />
 
-      {toast && <RewardToast kind={toast.kind} text={toast.text} onDone={() => setToast(null)} />}
+      {toast && (
+        <RewardToast
+          kind={toast.kind}
+          text={toast.text}
+          onDone={() => setToast(null)}
+        />
+      )}
+
+      {rewardSticker && (
+        <StickerRewardModal
+          sticker={rewardSticker}
+          onClose={() => setRewardSticker(null)}
+        />
+      )}
+
     </GameShell>
-  );
+  );  
 }

@@ -11,13 +11,16 @@ import { evaluateAnswer } from "@/engine/evaluate";
 import { nextDifficulty } from "@/engine/difficulty";
 import { useProgress } from "@/hooks/useProgress";
 import ProgressBar from "@/components/ProgressBar";
+import { useStickers } from "@/hooks/useStickers";
+import StickerRewardModal from "@/components/StickerRewardModal";
+import StickerProgress from "@/components/StickerProgress";
 
 export default function DailyPage() {
-    const { progress, bumpCoins, recordResult, ensureDailyReset } = useProgress();
+  const { progress, bumpCoins, recordResult, ensureDailyReset } = useProgress();
 
-    useEffect(() => {
-      ensureDailyReset();
-    }, [ensureDailyReset]);    
+  useEffect(() => {
+    ensureDailyReset();
+  }, [ensureDailyReset]);
 
   const seed = useMemo(() => seedFromTodayJakarta(), []);
   const rng = useMemo(() => makeRng(seed), [seed]);
@@ -29,9 +32,13 @@ export default function DailyPage() {
   const [done, setDone] = useState(progress.daily.doneCount || 0);
 
   const dailyTarget = 7; // target misi harian
+
   const [question, setQuestion] = useState(() =>
     generateQuestion({ subject: "math", difficulty, rng })
   );
+
+  const { onCorrectAnswer, progressToNext, every } = useStickers();
+  const [rewardSticker, setRewardSticker] = useState<any | null>(null);
 
   function nextQ(nextDiff = difficulty) {
     setQuestion(generateQuestion({ subject: "math", difficulty: nextDiff, rng }));
@@ -51,8 +58,14 @@ export default function DailyPage() {
     if (result.correct) {
       bumpCoins(1);
       setToast({ kind: "good", text: result.feedback });
+
+      // progress misi harian
       const newDone = Math.min(dailyTarget, done + 1);
       setDone(newDone);
+
+      // 🎁 STIKER REWARD (tiap 5 benar)
+      const reward = onCorrectAnswer({ every: 5 });
+      if (reward) setRewardSticker(reward);
     } else {
       setToast({ kind: "bad", text: result.feedback });
     }
@@ -71,26 +84,49 @@ export default function DailyPage() {
         `Koin: ${progress.coins}`,
       ]}
     >
-        <div className="card" style={{ marginBottom: 14 }}>
+      <div className="card" style={{ marginBottom: 14 }}>
         <ProgressBar value={done} max={dailyTarget} />
         <p className="muted" style={{ marginTop: 10 }}>
-            Selesaikan target untuk dapat “hadiah harian” (nanti kita bikin stiker/kartu).
+          Selesaikan target untuk dapat “hadiah harian”.
         </p>
-        </div>
+      </div>
+
+      {/* 🎁 Progress menuju stiker */}
+      <StickerProgress value={progressToNext} total={every} />
 
       {finished ? (
         <div className="card">
           <h2 style={{ marginTop: 0 }}>🎉 Hebat! Misi harian selesai.</h2>
           <p className="muted" style={{ lineHeight: 1.5 }}>
-            Kamu tetap bisa latihan di <Link className="btn btnPrimary" href="/play">Free Play</Link>.
-            Besok misi harian akan berubah otomatis.
+            Kamu tetap bisa latihan di{" "}
+            <Link className="btn btnPrimary" href="/play">
+              Free Play
+            </Link>
+            . Besok misi harian akan berubah otomatis.
           </p>
         </div>
       ) : (
-        <QuestionCard question={question} onAnswer={onAnswer} onNext={() => nextQ(difficulty)} />
+        <QuestionCard
+          question={question}
+          onAnswer={onAnswer}
+          onNext={() => nextQ(difficulty)}
+        />
       )}
 
-      {toast && <RewardToast kind={toast.kind} text={toast.text} onDone={() => setToast(null)} />}
+      {toast && (
+        <RewardToast
+          kind={toast.kind}
+          text={toast.text}
+          onDone={() => setToast(null)}
+        />
+      )}
+
+      {rewardSticker && (
+        <StickerRewardModal
+          sticker={rewardSticker}
+          onClose={() => setRewardSticker(null)}
+        />
+      )}
     </GameShell>
   );
 }

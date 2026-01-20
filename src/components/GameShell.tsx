@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
+import { useAvatar } from "@/hooks/useAvatar";
 
 export default function GameShell({
   title,
@@ -13,6 +17,8 @@ export default function GameShell({
   badges?: string[];
   children: React.ReactNode;
 }) {
+  const { profile, currentAvatar, loaded } = useAvatar();
+
   return (
     <div className="container">
       <div className="card">
@@ -25,7 +31,14 @@ export default function GameShell({
               </p>
             )}
           </div>
-          {right}
+
+          {/* RIGHT AREA: avatar + custom right */}
+          <div className="row" style={{ alignItems: "center" }}>
+          <Link className="badge" href="/avatar" style={{ textDecoration: "none" }}>
+              {loaded ? `${currentAvatar.emoji} ${profile.name}` : "🎭 Karakter"}
+            </Link>
+            {right}
+          </div>
         </div>
 
         {badges && badges.length > 0 && (
