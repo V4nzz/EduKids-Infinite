@@ -1,6 +1,5 @@
 import { pickOne } from "../rng";
-
-type MakeParams = { difficulty: number; rng: () => number };
+import { VOCAB } from "../bank";
 
 function shuffle<T>(rng: () => number, arr: T[]) {
   const a = [...arr];
@@ -11,72 +10,60 @@ function shuffle<T>(rng: () => number, arr: T[]) {
   return a;
 }
 
-// ✅ mode susun huruf (kelas 1–2)
-const wordsEasy = [
-  { emoji: "🍎", word: "APEL" },
-  { emoji: "🐱", word: "KUCING" },
-  { emoji: "🏫", word: "SEKOLAH" },
-  { emoji: "🚲", word: "SEPEDA" },
-  { emoji: "🌧️", word: "HUJAN" },
-  { emoji: "⭐", word: "BINTANG" },
-];
-
-const sentencesEasy = [
-  ["Aku", "suka", "apel"],
-  ["Ibu", "pergi", "ke", "pasar"],
-  ["Adik", "minum", "air"],
-  ["Kami", "belajar", "di", "sekolah"],
-  ["Kucing", "lari", "cepat"],
-];
-
-const sentencesMedium = [
-  ["Aku", "makan", "nasi", "di", "rumah"],
-  ["Ayah", "naik", "sepeda", "ke", "toko"],
-  ["Kami", "bermain", "bola", "di", "lapangan"],
-  ["Bunga", "itu", "wangi", "sekali"],
-  ["Hari", "ini", "cuaca", "cerah"],
-];
-
-const sentencesHard = [
-  ["Setelah", "hujan", "reda,", "pelangi", "muncul", "di", "langit"],
-  ["Sebelum", "tidur,", "aku", "membaca", "buku", "cerita"],
-  ["Di", "sekolah,", "kami", "belajar", "dengan", "gembira"],
-  ["Jika", "rajin", "berlatih,", "kamu", "akan", "semakin", "pintar"],
-];
+type MakeParams = {
+  difficulty: number;
+  rng: () => number;
+};
 
 export function makeBahasaQuestion({ difficulty, rng }: MakeParams) {
-  // ✅ difficulty rendah: SUSUN HURUF
-  if (difficulty <= 3) {
-    const pick = pickOne(rng, wordsEasy);
-    const answer = pick.word.split(""); // urutan benar huruf
-    const bank = shuffle(rng, answer);
+  const word = pickOne(rng, VOCAB);
+  const mode = pickOne(rng, ["susun", "tebak", "awal"]);
 
+  // MODE 1 — SUSUN HURUF
+  if (mode === "susun") {
+    const letters = shuffle(rng, word.split(""));
     return {
-      prompt: `Susun huruf menjadi kata yang benar: ${pick.emoji}`,
-      hint: "Tarik huruf ke kotak urutan dari kiri ke kanan.",
-      bank,
-      answer,
+      type: "drag_order",
+      prompt: "Susun huruf menjadi kata yang benar ⭐",
+      hint: "Tarik huruf ke kotak dari kiri ke kanan",
+      letters,
+      answer: word,
     };
   }
 
-  // ✅ difficulty menengah/tinggi: SUSUN KATA (kalimat)
-  const pool =
-    difficulty <= 7 ? sentencesMedium : sentencesHard;
+  // MODE 2 — TEBAK MAKNA
+  if (mode === "tebak") {
+    const choices = shuffle(rng, [
+      word,
+      pickOne(rng, VOCAB),
+      pickOne(rng, VOCAB),
+      pickOne(rng, VOCAB),
+    ]).map((w, i) => ({ id: String(i), label: w }));
 
-  // biar tetap ada variasi mudah juga:
-  const mixedPool =
-    difficulty <= 5 ? [...sentencesEasy, ...pool] : pool;
+    const correctIndex = choices.findIndex((c) => c.label === word);
 
-  const answer = pickOne(rng, mixedPool);
-  const bank = shuffle(rng, answer);
+    return {
+      prompt: `Pilih kata yang sesuai dengan gambar/teks: "${word}"`,
+      hint: "Baca perlahan ya.",
+      choices,
+      correctChoiceId: String(correctIndex),
+    };
+  }
 
-  const prompt =
-    difficulty <= 7
-      ? "Tarik kata ke urutan yang tepat untuk membentuk kalimat:"
-      : "Susun kalimat dengan urutan yang benar (perhatikan tanda baca):";
+  // MODE 3 — HURUF AWAL
+  const choices = shuffle(rng, [
+    word[0],
+    pickOne(rng, VOCAB)[0],
+    pickOne(rng, VOCAB)[0],
+    pickOne(rng, VOCAB)[0],
+  ]).map((w, i) => ({ id: String(i), label: w }));
 
-  const hint =
-    "Seret kata dari bawah ke kotak urutan. Kamu bisa pindahkan lagi kalau salah urutan.";
+  const correctIndex = choices.findIndex((c) => c.label === word[0]);
 
-  return { prompt, hint, bank, answer };
+  return {
+    prompt: `Huruf pertama dari kata "${word}" adalah…`,
+    hint: "Lihat huruf paling depan.",
+    choices,
+    correctChoiceId: String(correctIndex),
+  };
 }

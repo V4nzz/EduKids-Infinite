@@ -1,6 +1,5 @@
 import { pickOne } from "../rng";
-
-type MakeParams = { difficulty: number; rng: () => number };
+import { IPA_ITEMS } from "../bank";
 
 function shuffle<T>(rng: () => number, arr: T[]) {
   const a = [...arr];
@@ -11,32 +10,36 @@ function shuffle<T>(rng: () => number, arr: T[]) {
   return a;
 }
 
-const processes = [
-  {
-    prompt: "Urutkan daur air yang benar:",
-    steps: ["☀️ Penguapan", "☁️ Kondensasi", "🌧️ Hujan", "🌊 Aliran ke laut"],
-    hint: "Air menguap → jadi awan → turun hujan → kembali ke laut.",
-  },
-  {
-    prompt: "Urutkan pertumbuhan tanaman:",
-    steps: ["🌰 Benih", "🌱 Berkecambah", "🌿 Tunas", "🪴 Tanaman kecil", "🌳 Tanaman besar"],
-    hint: "Mulai dari benih sampai tumbuh besar.",
-  },
-  {
-    prompt: "Urutkan siklus kupu-kupu:",
-    steps: ["🥚 Telur", "🐛 Ulat", "🧵 Kepompong", "🦋 Kupu-kupu"],
-    hint: "Telur → ulat → kepompong → kupu-kupu.",
-  },
-];
+type MakeParams = {
+  difficulty: number;
+  rng: () => number;
+};
 
 export function makeIpaQuestion({ difficulty, rng }: MakeParams) {
-  const pick = pickOne(rng, processes);
+  const item = pickOne(rng, IPA_ITEMS);
+  const mode = pickOne(rng, ["type", "habitat"]);
 
-  const answer = pick.steps;
-  const bank = shuffle(rng, answer);
+  // MODE 1 — JENIS
+  if (mode === "type") {
+    const options = shuffle(rng, ["hewan", "tumbuhan", "benda"]);
+    const correctIndex = options.indexOf(item.type);
 
-  const prompt = difficulty <= 4 ? pick.prompt : `${pick.prompt} (lebih teliti ya!)`;
-  const hint = pick.hint;
+    return {
+      prompt: `Ini termasuk apa? ${item.emoji} (${item.name})`,
+      hint: "Pikirkan: hidup atau tidak?",
+      choices: options.map((o, i) => ({ id: String(i), label: o })),
+      correctChoiceId: String(correctIndex),
+    };
+  }
 
-  return { prompt, hint, bank, answer };
+  // MODE 2 — HABITAT
+  const options = shuffle(rng, ["darat", "air", "udara", "air & darat"]);
+  const correctIndex = options.indexOf(item.habitat);
+
+  return {
+    prompt: `Di mana ${item.name} hidup? ${item.emoji}`,
+    hint: "Ingat tempat tinggalnya.",
+    choices: options.map((o, i) => ({ id: String(i), label: o })),
+    correctChoiceId: String(correctIndex),
+  };
 }
