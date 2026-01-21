@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import GameShell from "@/components/GameShell";
 import QuestionCard from "@/components/QuestionCard";
@@ -14,6 +14,7 @@ import type { Subject } from "@/engine/types";
 import { useStickers } from "@/hooks/useStickers";
 import StickerRewardModal from "@/components/StickerRewardModal";
 import StickerProgress from "@/components/StickerProgress";
+import FlyingStars from "@/components/FlyingStars";
 
 const subjectOptions: { id: Subject; label: string; emoji: string }[] = [
   { id: "math", label: "Matematika", emoji: "🧮" },
@@ -36,6 +37,8 @@ export default function PlayPage() {
 
   const { onCorrectAnswer, progressToNext, every } = useStickers();
   const [rewardSticker, setRewardSticker] = useState<null | any>(null);
+
+  const stickerTargetRef = useRef<HTMLDivElement | null>(null);
 
   function syncDifficultyFor(s: Subject) {
     const d = progress.skill[s] || 1;
@@ -61,7 +64,12 @@ export default function PlayPage() {
     if (result.correct) {
       bumpCoins(1);
       setToast({ kind: "good", text: result.feedback });
-  
+      
+      const el = document.activeElement as HTMLElement | null;
+      const rect = el?.getBoundingClientRect?.();
+
+      if (rect && window.__launchStars) window.__launchStars(rect, 8);
+
       const reward = onCorrectAnswer({ every: 5 });
       if (reward) setRewardSticker(reward);
     } else {
@@ -103,8 +111,15 @@ export default function PlayPage() {
           Tips: mapel Bahasa & IPA ini versi awal. Nanti kita bikin lebih interaktif (drag-drop, susun kata).
         </p>
       </div>
-
+      
+      <div ref={stickerTargetRef}>
       <StickerProgress value={progressToNext} total={every} />
+      </div>
+
+      <FlyingStars
+        getTargetRect={() => stickerTargetRef.current?.getBoundingClientRect() ?? null}
+      />
+
       <QuestionCard
         question={question}
         onAnswer={onAnswer}

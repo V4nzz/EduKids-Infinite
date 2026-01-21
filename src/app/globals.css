@@ -626,3 +626,40 @@ body{
 .dropArea.fxWrong{
   background: rgba(255,92,124,0.08);
 }
+
+/* =========================
+   FLYING STARS
+========================= */
+
+.flyLayer{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.flyStar{
+  position: fixed;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  transform: translate(0,0) scale(1);
+  opacity: 1;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.18));
+  animation: flyStar var(--dur) cubic-bezier(.2,.9,.2,1) var(--delay) forwards;
+}
+
+@keyframes flyStar{
+  0%{
+    transform: translate(0,0) scale(1);
+    opacity: 1;
+  }
+  35%{
+    transform: translate(calc(var(--dx) * 0.35), calc(var(--dy) * 0.35)) scale(1.25) rotate(var(--rot));
+    opacity: 1;
+  }
+  100%{
+    transform: translate(var(--dx), var(--dy)) scale(0.65) rotate(var(--rot));
+    opacity: 0;
+  }
+}
