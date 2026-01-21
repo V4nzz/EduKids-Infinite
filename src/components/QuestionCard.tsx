@@ -4,21 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import type { Question } from "@/engine/types";
 import DragOrderCard from "@/components/DragOrderCard";
 
+type FX = "idle" | "correct" | "wrong";
+
 export default function QuestionCard({
   question,
   onAnswer,
   onNext,
 }: {
   question: Question;
-  onAnswer: (choiceId: string) => void;
+  onAnswer: (choiceId: string) => boolean; // ✅ return correct
   onNext: () => void;
 }) {
   const [locked, setLocked] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
+  const [fx, setFx] = useState<FX>("idle");
 
   useEffect(() => {
     setLocked(false);
     setPicked(null);
+    setFx("idle");
   }, [question.id]);
 
   useEffect(() => {
@@ -33,19 +37,28 @@ export default function QuestionCard({
     if (locked) return;
     setPicked(id);
     setLocked(true);
-    onAnswer(id);
+
+    const correct = onAnswer(id);
+    setFx(correct ? "correct" : "wrong");
   }
 
-  // ✅ DRAG MODE
+  const fxClass =
+    fx === "correct" ? "fxCorrect" : fx === "wrong" ? "fxWrong" : "";
+
+  // ======================
+  // DRAG MODE
+  // ======================
   if (question.type === "drag_order") {
     return (
-      <div className="card">
+      <div className={`card fxWrap ${fxClass}`}>
         <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
           <span className="badge">🎒 {question.subjectLabel}</span>
           <span className="badge">⚡ Mode: {question.difficultyLabel}</span>
         </div>
 
-        <h2 style={{ marginTop: 14, marginBottom: 8, fontSize: 26 }}>{question.prompt}</h2>
+        <h2 style={{ marginTop: 14, marginBottom: 8, fontSize: 26 }}>
+          {question.prompt}
+        </h2>
         {question.hint && (
           <p className="muted" style={{ marginTop: 0, lineHeight: 1.5 }}>
             Hint: {question.hint}
@@ -55,7 +68,11 @@ export default function QuestionCard({
         <DragOrderCard
           question={question}
           locked={locked}
-          onResetLock={() => setLocked(false)}
+          onResetLock={() => {
+            setLocked(false);
+            setFx("idle");
+            setPicked(null);
+          }}
           onSubmit={(encoded) => lockAndAnswer(encoded)}
         />
 
@@ -75,17 +92,21 @@ export default function QuestionCard({
     );
   }
 
-  // ✅ MCQ MODE (lama)
+  // ======================
+  // MCQ MODE
+  // ======================
   const choices = useMemo(() => question.choices, [question.choices]);
 
   return (
-    <div className="card">
+    <div className={`card fxWrap ${fxClass}`}>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
         <span className="badge">🎒 {question.subjectLabel}</span>
         <span className="badge">⚡ Mode: {question.difficultyLabel}</span>
       </div>
 
-      <h2 style={{ marginTop: 14, marginBottom: 8, fontSize: 26 }}>{question.prompt}</h2>
+      <h2 style={{ marginTop: 14, marginBottom: 8, fontSize: 26 }}>
+        {question.prompt}
+      </h2>
       {question.hint && (
         <p className="muted" style={{ marginTop: 0, lineHeight: 1.5 }}>
           Hint: {question.hint}
@@ -95,7 +116,12 @@ export default function QuestionCard({
       <div className="choiceGrid" style={{ marginTop: 10 }}>
         {choices.map((c) => {
           const isPicked = picked === c.id;
-          const cls = isPicked ? "btn btnPrimary" : "btn";
+
+          // tombol yang dipilih ikut fx benar/salah
+          const cls = isPicked
+            ? `btn ${fx === "correct" ? "fxCorrect" : fx === "wrong" ? "fxWrong" : "btnPrimary"}`
+            : "btn";
+
           return (
             <button key={c.id} className={cls} onClick={() => lockAndAnswer(c.id)}>
               {c.label}

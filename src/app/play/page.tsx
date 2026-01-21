@@ -50,24 +50,26 @@ export default function PlayPage() {
   function onAnswer(choiceId: string) {
     const result = evaluateAnswer(question, choiceId);
     recordResult(subject, result.correct);
-
+  
     const updated = nextDifficulty({
       current: difficulty,
       correct: result.correct,
       streak: progress.streak,
     });
     setDifficulty(updated.newDifficulty);
-
+  
     if (result.correct) {
       bumpCoins(1);
       setToast({ kind: "good", text: result.feedback });
-    
-      // 🎁 STIKER REWARD (tiap 5 benar)
+  
       const reward = onCorrectAnswer({ every: 5 });
-      console.log("reward:", reward);
       if (reward) setRewardSticker(reward);
-    }    
-  }
+    } else {
+      setToast({ kind: "bad", text: result.feedback });
+    }
+  
+    return result.correct; // ✅ penting
+  }  
 
   return (
     <GameShell

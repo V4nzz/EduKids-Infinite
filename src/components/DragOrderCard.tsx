@@ -147,7 +147,7 @@ export default function DragOrderCard({
   }
 
   return (
-    <div style={{ marginTop: 10 }}>
+    <div className="dropArea" style={{ marginTop: 10 }}>
       {/* SLOTS */}
       <div className="dropRow">
         {slots.map((val, i) => (

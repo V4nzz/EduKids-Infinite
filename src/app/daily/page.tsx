@@ -69,6 +69,7 @@ export default function DailyPage() {
     } else {
       setToast({ kind: "bad", text: result.feedback });
     }
+    return result.correct;
   }
 
   const finished = done >= dailyTarget;
