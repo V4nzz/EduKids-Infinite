@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import GameShell from "@/components/GameShell";
 import QuestionCard from "@/components/QuestionCard";
@@ -14,6 +14,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { useStickers } from "@/hooks/useStickers";
 import StickerRewardModal from "@/components/StickerRewardModal";
 import StickerProgress from "@/components/StickerProgress";
+import FlyingStars from "@/components/FlyingStars";
 
 export default function DailyPage() {
   const { progress, bumpCoins, recordResult, ensureDailyReset } = useProgress();
@@ -40,6 +41,8 @@ export default function DailyPage() {
   const { onCorrectAnswer, progressToNext, every } = useStickers();
   const [rewardSticker, setRewardSticker] = useState<any | null>(null);
 
+  const stickerTargetRef = useRef<HTMLDivElement | null>(null);
+
   function nextQ(nextDiff = difficulty) {
     setQuestion(generateQuestion({ subject: "math", difficulty: nextDiff, rng }));
   }
@@ -58,6 +61,11 @@ export default function DailyPage() {
     if (result.correct) {
       bumpCoins(1);
       setToast({ kind: "good", text: result.feedback });
+
+      const el = document.activeElement as HTMLElement | null;
+      const rect = el?.getBoundingClientRect?.();
+
+      if (rect && window.__launchStars) window.__launchStars(rect, 8);
 
       // progress misi harian
       const newDone = Math.min(dailyTarget, done + 1);
@@ -93,7 +101,13 @@ export default function DailyPage() {
       </div>
 
       {/* 🎁 Progress menuju stiker */}
+      <div ref={stickerTargetRef}>
       <StickerProgress value={progressToNext} total={every} />
+      </div>
+
+      <FlyingStars
+        getTargetRect={() => stickerTargetRef.current?.getBoundingClientRect() ?? null}
+        />
 
       {finished ? (
         <div className="card">
